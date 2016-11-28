@@ -1,4 +1,4 @@
-ffjson (1.0-0ubuntu5) xenial; urgency=medium
+ffjson (1.0-0ubuntu6) xenial; urgency=medium
 
   * FFJSON and logger separated (Closes: #1)
    - update implemented
