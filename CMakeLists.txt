@@ -23,11 +23,15 @@ configure_file(
     )
 
 set (GCC_COVERAGE_COMPILE_FLAGS "-std=c++14")
+IF (DEFINED _DEBUG)
+set (GCC_COVERAGE_COMPILE_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS} -g -O0")
+set (GCC_COVERAGE_LINK_FLAGS "${GCC_COVERAGE_LINK_FLAGS} -g -O0")
+ENDIF()
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
 set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 file(GLOB HEADERS *.h)
 file(GLOB SOURCES *.cpp)
-include_directories("${PROJECT_BINARY_DIR}" ${CMAKE_CURRENT_SOURCE_DIR} "/usr/include/${Umbrella}")
+include_directories("${PROJECT_BINARY_DIR}" ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_INSTALL_FULL_INCLUDEDIR}/${Umbrella})
 add_library(${PROJECT_NAME}Static STATIC ${SOURCES} ${HEADERS})
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 set_target_properties(${PROJECT_NAME}Static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
@@ -41,8 +45,8 @@ set_target_properties(${PROJECT_NAME}Static
     VERSION ${VERSION_MAJOR}.${VERSION_MINOR}
     SOVERSION ${VERSION_MAJOR}
     )
-target_link_libraries(${PROJECT_NAME}Static logger ferrybase)
-target_link_libraries(${PROJECT_NAME} logger ferrybase)
+target_link_libraries(${PROJECT_NAME}Static logger ferrybase xml2 pthread ssl crypto z rt)
+target_link_libraries(${PROJECT_NAME} logger ferrybase xml2 pthread ssl crypto z rt)
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(TARGETS ${PROJECT_NAME}Static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${Umbrella})
