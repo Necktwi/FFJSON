@@ -1,7 +1,7 @@
-libffjson (1.0-2ubuntu1) xenial; urgency=medium
+libffjson (1.0-3ubuntu1) xenial; urgency=medium
 
   * FFJSON and logger separated (Closes: #2003)
    - update implemented
    - FFJSON and logger separated
 
- -- Satya Gowtham Kudupudi (necktwi) <satyagowtham.k@gmail.com>  Thu, 01 Dec 2016 08:55:07 +0530
+ -- Satya Gowtham Kudupudi (necktwi) <satyagowtham.k@gmail.com>  Fri, 02 Dec 2016 16:45:07 +0530
