@@ -1093,7 +1093,7 @@ void FFJSON::init (
                FFJSON* obj = returnNameIfDeclared(*prop, pObj);
                if (!obj) {
                   int pL=0;
-                  FFJSONPObj* lfpo=pObj->pObj;
+                  FFJSONPObj* lfpo = pObj->pObj;
                   while (pL<prop->size() && !(*prop)[pL].size()) {
                      if (!lfpo) {
                         delete prop;
@@ -2281,7 +2281,7 @@ FFJSON& FFJSON::operator [] (const char* prop) {
       val.pairs = new map<string, FFJSON*>();
       size = 0;
    }
-   FFJSON* obj;
+   FFJSON* obj = nullptr;
    if (isType(OBJ_TYPE::OBJECT)) {
       string t(prop);
       ffmap::iterator it = val.pairs->find(t);
@@ -2316,6 +2316,20 @@ FFJSON& FFJSON::operator [] (const char* prop) {
       } else {
          return ((*this)[atoi(prop)]);
       }
+   } else if (isType(SET_TYPE)) {
+      ffset::iterator it = val.set->begin();
+      while (it!=val.set->end()) {
+         FFJSON* pt = *it;
+         ++it;
+         if (pt->isType(FFJSON::STRING)) {
+            if (!strcmp(prop, pt->val.string)) {
+               return *pt;
+            }
+         }
+      }
+   }
+   if (!obj) {
+      obj=&nullFFJSON;
    }
    return *obj;
 }
@@ -3225,13 +3239,37 @@ FFJSON::operator unsigned int () {
    return (unsigned int) val.number;
 }
 
+FFJSON& FFJSON::operator = (Blob_ b) {
+   if (isQType(UPDATE)) {
+      FeaturedMember fm=getFeaturedMember(FM_UPDATE_TIMESTAMP);
+      fm.m_pTimeStamp->Update();
+   }
+   FFJSON* parent = nullptr;
+   if (isType(NEW_SET_MEMBER)) {
+      parent = val.fptr;
+   }
+   freeObj(true);
+   setType(BINARY);
+   size = b.s;
+   val.vptr = b.p;
+   if (parent) {
+      if (parent->val.set->insert(this).second)
+         ++parent->size;
+      else {
+         freeObj(true);
+      }
+   }
+   return *this;
+}
+
 FFJSON& FFJSON::operator = (const char* s) {
    if (isQType(UPDATE)) {
       FeaturedMember fm=getFeaturedMember(FM_UPDATE_TIMESTAMP);
       fm.m_pTimeStamp->Update();
    }
+   FFJSON* parent = nullptr;
    if (isType(NEW_SET_MEMBER)) {
-      
+      parent = val.fptr;
    }
    freeObj(true);
    int i = 0;
@@ -3319,6 +3357,13 @@ FFJSON& FFJSON::operator = (const char* s) {
       insertFeaturedMember(fmWidth, FM_WIDTH);
       val.string[size] = '\0';
    }
+   if (parent) {
+      if (parent->val.set->insert(this).second)
+         ++parent->size;
+      else {
+         freeObj(true);
+      }
+   }
    return *this;
 }
 
@@ -3372,7 +3417,7 @@ FFJSON& FFJSON::addLink (const FFJSON& PObj, string label) {
    explode(".", label, *prop);
    FFJSON* obj = const_cast<FFJSON*>(PObj.returnNameIfDeclared(*prop));
    if (obj) {
-      FFJSON* parent = NULL;
+      FFJSON* parent = nullptr;
       if (!isType(NEW_SET_MEMBER))
          freeObj(true);
       else {
@@ -4601,6 +4646,8 @@ bool operator < (const FFJSON& lhs, const FFJSON& rhs) {
             return lhs.val.number < rhs.val.number;
          case FFJSON::TIME:
             return *lhs.val.m_pFerryTimeStamp < *rhs.val.m_pFerryTimeStamp;
+         case FFJSON::STRING:
+            return strcmp(lhs.val.string, rhs.val.string)<0;
          default:
             return (void*)lhs.val.fptr < (void*)rhs.val.fptr;
       }

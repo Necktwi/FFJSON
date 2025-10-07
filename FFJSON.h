@@ -223,7 +223,10 @@ public:
    
    struct FeaturedMemHook;
    typedef vector<string> Link;
-   
+   struct Blob_ {
+      uint8_t* p;
+      size_t s;
+   };
    union FeaturedMember {
       Link* link;
       map<string, int>* tabHead;
@@ -586,6 +589,7 @@ public:
       return *this;
    }
    FFJSON& operator = (const char* s);
+   FFJSON& operator = (Blob_ b);
    FFJSON& operator = (const string& s);
    FFJSON& operator = (const int& i);
    FFJSON& operator = (const unsigned int& i);
