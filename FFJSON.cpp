@@ -4002,7 +4002,7 @@ bool FFJSON::isLink () const {
 //   type = t;
 //}
 
-void FFJSON::setType(OBJ_TYPE t) {
+void FFJSON::setType (OBJ_TYPE t) {
    flags &= 0xffffff00;
    flags |= t;
 }
@@ -4012,7 +4012,7 @@ void FFJSON::setType(OBJ_TYPE t) {
 //   return type;
 //}
 
-FFJSON::OBJ_TYPE FFJSON::getType() const {
+FFJSON::OBJ_TYPE FFJSON::getType () const {
    uint32_t type = 0xff;
    type &= flags;
    return (OBJ_TYPE) type;
@@ -4023,7 +4023,7 @@ FFJSON::OBJ_TYPE FFJSON::getType() const {
 //   return (t == qtype);
 //}
 
-bool FFJSON::isQType(QUERY_TYPE t) const {
+bool FFJSON::isQType (QUERY_TYPE t) const {
    uint32_t qtype = flags;
    qtype &= 0xff00;
    return (t == qtype);
@@ -4034,7 +4034,7 @@ bool FFJSON::isQType(QUERY_TYPE t) const {
 //   qtype = t;
 //}
 
-void FFJSON::setQType(QUERY_TYPE t) {
+void FFJSON::setQType (QUERY_TYPE t) {
    flags &= (~0xff00);
    flags |= t;
 }
@@ -4044,7 +4044,7 @@ void FFJSON::setQType(QUERY_TYPE t) {
 //   return qtype;
 //}
 
-FFJSON::QUERY_TYPE FFJSON::getQType() const {
+FFJSON::QUERY_TYPE FFJSON::getQType () const {
    uint32_t qtype = flags;
    qtype &= 0xff00;
    return (QUERY_TYPE) qtype;
@@ -4055,7 +4055,7 @@ FFJSON::QUERY_TYPE FFJSON::getQType() const {
 //   return (t & etype == t);
 //}
 
-bool FFJSON::isEFlagSet(E_FLAGS t) const {
+bool FFJSON::isEFlagSet (E_FLAGS t) const {
    return ((t & flags) == t);
 }
 
@@ -4064,7 +4064,7 @@ bool FFJSON::isEFlagSet(E_FLAGS t) const {
 //   return this->etype;
 //}
 
-FFJSON::E_FLAGS FFJSON::getEFlags() const {
+FFJSON::E_FLAGS FFJSON::getEFlags () const {
    return (E_FLAGS) (flags & 0x0fff0000);
 }
 
@@ -4073,7 +4073,7 @@ FFJSON::E_FLAGS FFJSON::getEFlags() const {
 //   etype |= t;
 //}
 
-void FFJSON::setEFlag(E_FLAGS t) {
+void FFJSON::setEFlag (E_FLAGS t) {
    flags |= t;
 }
 
@@ -4082,7 +4082,7 @@ void FFJSON::setEFlag(E_FLAGS t) {
 //   etype &= ~t;
 //}
 
-void FFJSON::clearEFlag(E_FLAGS t) {
+void FFJSON::clearEFlag (E_FLAGS t) {
    flags &= ~(t);
 }
 
