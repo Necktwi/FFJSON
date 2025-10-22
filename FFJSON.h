@@ -373,7 +373,7 @@ public:
       char*                      string;
       vector<FFJSON*>*           array;
       map<std::string, FFJSON*>* pairs;
-      set<FFJSON*, FFPtrCmp>*    set;
+      set<FFJSON*, FFPtrCmp>*    setPtr;
       double                     number;
       bool                       boolean;
       FFJSON*                    fptr;

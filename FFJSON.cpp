@@ -232,10 +232,10 @@ void FFJSON::copy (const FFJSON& orig, COPY_FLAGS cf, FFJSONPObj* pObj) {
       }
       case SET_TYPE: {
          size=0;
-         val.set = new ffset();
-         for (FFJSON* fp : *orig.val.set) {
+         val.setPtr = new ffset();
+         for (FFJSON* fp : *orig.val.setPtr) {
             FFJSON* newcopy = new FFJSON(*fp);
-            if (val.set->insert(newcopy).second)
+            if (val.setPtr->insert(newcopy).second)
                ++size;
             else
                delete newcopy;
@@ -535,7 +535,7 @@ void FFJSON::init (
                   settype:
                      if (isType(UNDEFINED) && !curlBegan && !squareBegan) {
                         setType(OBJ_TYPE::SET_TYPE);
-                        val.set = new ffset();
+                        val.setPtr = new ffset();
                      }
                      if (isType(OBJ_TYPE::SET_TYPE)) {
                         string name = to_string(size);
@@ -545,7 +545,7 @@ void FFJSON::init (
                                       &ffpo);
                         if (!obj->isType(UNDEFINED) && !obj->isType(NUL)) { 
                            pair<ffset::iterator,bool> ret =
-                              val.set->insert(obj);
+                              val.setPtr->insert(obj);
                            if (!ret.second) {
                               --size;
                               delete obj;
@@ -554,7 +554,7 @@ void FFJSON::init (
                            --size;
                            delete obj;
                            if (!size) {
-                              delete val.set;
+                              delete val.setPtr;
                               goto objtype;
                            }
                            gotoObjBackyard=true;
@@ -2154,11 +2154,11 @@ void FFJSON::freeObj (bool bAssignment) {
          break;
       }
       case OBJ_TYPE::SET_TYPE: {
-         for (FFJSON* fp : *val.set) {
+         for (FFJSON* fp : *val.setPtr) {
             if (fp)
                delete fp;
          }
-         delete val.set;
+         delete val.setPtr;
          break;
       }
       case OBJ_TYPE::STRING: {}
@@ -2252,7 +2252,7 @@ FFJSON& FFJSON::operator [] (void) {
    } else if (isType(UNDEFINED)) {
      settype:
       setType(SET_TYPE);
-      val.set=new ffset();
+      val.setPtr=new ffset();
    } else if (isType(OBJECT) && size==0) {
       freeObj();
       goto settype;
@@ -2317,8 +2317,8 @@ FFJSON& FFJSON::operator [] (const char* prop) {
          return ((*this)[atoi(prop)]);
       }
    } else if (isType(SET_TYPE)) {
-      ffset::iterator it = val.set->begin();
-      while (it!=val.set->end()) {
+      ffset::iterator it = val.setPtr->begin();
+      while (it!=val.setPtr->end()) {
          FFJSON* pt = *it;
          ++it;
          if (pt->isType(FFJSON::STRING)) {
@@ -2540,7 +2540,7 @@ string FFJSON::stringify (bool json, bool bGetQueryStr,
          break;
       }
       case OBJ_TYPE::SET_TYPE: {
-         ffset& objset = *(val.set);
+         ffset& objset = *(val.setPtr);
          FFJSONPrettyPrintPObj lfpo(NULL, NULL, NULL, NULL);
          lfpo.pObj = pObj;
          ffs = "{";
@@ -2870,7 +2870,7 @@ string FFJSON::prettyString (
          break;
       }
       case OBJ_TYPE::SET_TYPE: {
-         ffset& objset = *(val.set);
+         ffset& objset = *(val.setPtr);
          FFJSONPrettyPrintPObj lfpo(NULL, NULL, NULL, NULL);
          lfpo.pObj = pObj;
          lfpo.value = const_cast<FFJSON*> (this);
@@ -3253,7 +3253,7 @@ FFJSON& FFJSON::operator = (Blob_ b) {
    size = b.s;
    val.vptr = b.p;
    if (parent) {
-      if (parent->val.set->insert(this).second)
+      if (parent->val.setPtr->insert(this).second)
          ++parent->size;
       else {
          freeObj(true);
@@ -3358,7 +3358,7 @@ FFJSON& FFJSON::operator = (const char* s) {
       val.string[size] = '\0';
    }
    if (parent) {
-      if (parent->val.set->insert(this).second)
+      if (parent->val.setPtr->insert(this).second)
          ++parent->size;
       else {
          freeObj(true);
@@ -3429,7 +3429,7 @@ FFJSON& FFJSON::addLink (const FFJSON& PObj, string label) {
       cFM.link = prop;
       insertFeaturedMember(cFM, FM_LINK);
       if (parent) {
-         if (parent->val.set->insert(this).second)
+         if (parent->val.setPtr->insert(this).second)
             ++parent->size;
          else {
             freeObj(true);
@@ -3471,7 +3471,7 @@ FFJSON& FFJSON::addLink (const string&& objPath, const string&& linkPath) {
       cFM.link = objProp;
       link->insertFeaturedMember(cFM, FM_LINK);
       if (parent) {
-         if (parent->val.set->insert(link).second)
+         if (parent->val.setPtr->insert(link).second)
             ++parent->size;
          else {
             delete link;
@@ -4158,10 +4158,10 @@ void FFJSON::erase (FFJSON* value) {
          i++;
       }
    } else if (isType(SET_TYPE)) {
-      ffset::iterator it = val.set->find(value);
-      if (it!=val.set->end()) {
+      ffset::iterator it = val.setPtr->find(value);
+      if (it!=val.setPtr->end()) {
          delete *it;
-         val.set->erase(it);
+         val.setPtr->erase(it);
          --size;
       }
    }
@@ -4394,8 +4394,8 @@ void FFJSON::Iterator::init (const FFJSON& orig, bool end) {
       }
       case SET_TYPE: {
          type = SET_TYPE;
-         ui.si = end ? orig.val.set->end():orig.val.set->begin();
-         m_uContainerPs.m_pSet=orig.val.set;
+         ui.si = end ? orig.val.setPtr->end():orig.val.setPtr->begin();
+         m_uContainerPs.m_pSet=orig.val.setPtr;
          break;
       }
       default:
@@ -4694,9 +4694,9 @@ bool operator == (const FFJSON& lhs, const FFJSON& rhs) {
       case FFJSON::SET_TYPE: {
          if (lhs.size != rhs.size)
             return false;
-         ffset::iterator lit = lhs.val.set->begin();
-         ffset::iterator rit = rhs.val.set->begin();
-         while (lit!=lhs.val.set->end()) {
+         ffset::iterator lit = lhs.val.setPtr->begin();
+         ffset::iterator rit = rhs.val.setPtr->begin();
+         while (lit!=lhs.val.setPtr->end()) {
             if (**lit!=**rit)
                return false;
             ++rit;++lit;
