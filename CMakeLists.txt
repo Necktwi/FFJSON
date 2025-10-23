@@ -63,7 +63,7 @@ else(NOT LINKAGE)
    string(TOUPPER "${LINKAGE}" LINKAGE)
 endif()
 
-set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_STANDARD 23)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set (GCC_COVERAGE_LINK_FLAGS "-fPIC")
 if (NOT macOS)
@@ -75,7 +75,7 @@ if (DEFINED _DEBUG)
    set (GCC_COVERAGE_COMPILE_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS} -g")
    set (GCC_COVERAGE_LINK_FLAGS "${GCC_COVERAGE_LINK_FLAGS} -g")
 endif ()
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-changes-meaning")
 set (
    CMAKE_EXE_LINKER_FLAGS
    "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}"
@@ -133,7 +133,7 @@ install(FILES "${PROJECT_BINARY_DIR}/pkgconfig.pc"
 if (BUILD_TESTING)
    message("${PROJECT_NAME}: BUILD_TESTS: ${BUILD_TESTS}")
    include(CTest)
-   #set (GCC_COVERAGE_COMPILE_FLAGS "-std=c++14")
+   #set (GCC_COVERAGE_COMPILE_FLAGS "-std=c++23")
    #set (GCC_COVERAGE_LINK_FLAGS "-lFFJSON -lbase -llogger")
    #include_directories (${CMAKE_CURRENT_SOURCE_DIR} "/usr/local/include/ferryfair")
    #link_directories (${PROJECT_BINARY_DIR})

@@ -22,27 +22,40 @@
 #include <stdint.h>
 #include <cstring>
 
+typedef unsigned int uint;
+
 using namespace std;
 
 enum _ffj_log_level {
    FFJ_MAIN = 1 << 0
 };
+class FFJSON;
+struct FFPtrCmp {
+   bool operator() (const FFJSON* a, const FFJSON* b) const;
+};
+typedef set<FFJSON*, FFPtrCmp> ffset;
+typedef map<string, FFJSON*> ffmap;
+typedef vector<FFJSON*> ffvec;
+typedef const char* ccp;
 
 class DLLExport FFJSON {
 public:
    
    enum OBJ_TYPE : uint8_t {
       UNDEFINED,
+      BOOL,
+      BINARY,
+      NUMBER,
+      TIME,
       STRING,
       XML,
-      NUMBER,
-      BOOL,
-      OBJECT,
+      SET_TYPE,
+      NEW_SET_MEMBER,
       ARRAY,
-      LINK,
-      BINARY,
+      OBJECT,
       BIG_OBJECT,
-      TIME,
+      LINK,
+      DLINK, //Direct link
       NUL
    };
    
@@ -54,7 +67,8 @@ public:
       QUERY    = 1 << 8,
       SET      = 2 << 8,
       DEL      = 3 << 8,
-      UPDATE   = 4 << 8
+      UPDATE   = 4 << 8,
+      NQUERY   = 5 << 8,
    };
    
    enum E_FLAGS : uint32_t {
@@ -66,7 +80,7 @@ public:
       HAS_COMMENT          = 1 << 20,
       
       EXTENDED             = 1 << 21, //ARRAY N OBJECT //FM
-      LONG_LAST_LN         = 1 << 21, //STRING //NO_FM
+      LONG_LAST_LN         = 1 << 21, //STRING//linkResolvSerial //NO_FM
       
       PRECISION            = 1 << 22, //NUMBER //FM
       EXT_VIA_PARENT       = 1 << 22, //ARRAY N OBJECT //FM
@@ -119,8 +133,8 @@ public:
       Iterator (map<string, FFJSON*>::iterator pi);
       Iterator (vector<FFJSON*>::iterator ai);
       Iterator (
-         vector<map<string, FFJSON*>::iterator >::iterator pai,
-         vector<map<string,FFJSON*>::iterator>* pMapItVec
+         vector<ffmap::iterator>::iterator pai,
+         vector<ffmap::iterator>* pMapItVec
       );
       virtual     ~Iterator ();
       void        init (const FFJSON& orig, bool end = false);
@@ -140,13 +154,13 @@ public:
        * Should be only used on OBJECT type iterators
        * @return name in the name-value pair of the iterator of the OBJECT
        */
-      string GetIndex();
+      string getIndex ();
       /**
        * Should be only use on ARRAY type iterators
        * @param rCurrArray should be the FFJSON Object of the iterator
        * @return index of the iterator of the ARRAY
        */
-      int GetIndex(const FFJSON& rCurrArray);
+      int getIndex (const FFJSON& rCurrArray);
       
    private:
       uint8_t  type;
@@ -155,6 +169,7 @@ public:
       union IteratorUnion {
          map<string, FFJSON*>::iterator                     pi;
          vector<FFJSON*>::iterator                          ai;
+         ffset::iterator                                    si;
          vector<map<string, FFJSON*>::iterator >::iterator  pai;
          
          IteratorUnion () {
@@ -180,6 +195,9 @@ public:
          IteratorUnion (const map<string, FFJSON*>::iterator& itMap) {
             pi = itMap;
          }
+         IteratorUnion (const ffset::iterator& itSet) {
+            si = itSet;
+         }
          IteratorUnion& operator = (const IteratorUnion& rFIt) {
             memcpy(this, &rFIt, sizeof (IteratorUnion));
             return *this;
@@ -196,15 +214,19 @@ public:
          }
       } ui;
       union ContainerPs {
-         map<string, FFJSON*>*                     m_pMap;
-         vector<FFJSON*>*                          m_pVector;
-         vector<map<string, FFJSON*>::iterator>*   m_pMapVector;
+         ffmap*                     m_pMap;
+         ffvec*                     m_pVector;
+         vector<ffmap::iterator>*   m_pMapVector;
+         ffset*                     m_pSet;
       } m_uContainerPs;
    };
    
    struct FeaturedMemHook;
    typedef vector<string> Link;
-   
+   struct Blob_ {
+      uint8_t* p;
+      size_t s;
+   };
    union FeaturedMember {
       Link* link;
       map<string, int>* tabHead;
@@ -261,12 +283,16 @@ public:
    struct FFJSONExt {
       FFJSON* base = NULL;
    };
-   
+   struct SymlinkTrail {
+      Link* l = nullptr;
+      FFJSON* ln = nullptr;
+   };
    struct FFJSONPObj {
-      const string* name;
+      const string* name = NULL;
       FFJSON* value = NULL;
       FFJSONPObj* pObj = NULL;
       vector<map<string, FFJSON*>::iterator>* m_pvpsMapSequence;
+      SymlinkTrail* s = nullptr;
    };
    
    struct FFJSONPrettyPrintPObj : FFJSONPObj {
@@ -342,11 +368,12 @@ public:
       FFJSON*  m_pRef = 0;
       string   m_sLink;
    };
-   
+
    union FFValue {
       char*                      string;
       vector<FFJSON*>*           array;
       map<std::string, FFJSON*>* pairs;
+      set<FFJSON*, FFPtrCmp>*    set;
       double                     number;
       bool                       boolean;
       FFJSON*                    fptr;
@@ -402,9 +429,20 @@ public:
    
    static const                  FeaturedMemType m_FM_LAST = FM_PARENT;
    static const char             OBJ_STR[10][15];
-   static map<string, uint8_t>   STR_OBJ;
-   static FFJSON* MarkAsUpdatable(string link, const FFJSON& rParent);
-   static FFJSON* UnMarkUpdatable(string link, const FFJSON& rParent);
+   static inline std::map<std::string, uint8_t> STR_OBJ = {
+      {"", UNDEFINED},
+      {"UNDEFINED", UNDEFINED},
+      {"STRING", STRING},
+      {"XML", XML},
+      {"NUMBER", NUMBER},
+      {"BOOL", BOOL},
+      {"OBJECT", OBJECT},
+      {"ARRAY", ARRAY},
+      {"TIME", TIME},
+      {"NUL", NUL}
+   };
+   static FFJSON* MarkAsUpdatable(string& link, const FFJSON& rParent);
+   static FFJSON* UnMarkUpdatable(string& link, const FFJSON& rParent);
    
    void insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT);
    FeaturedMember getFeaturedMember (FeaturedMemType fMT) const;
@@ -424,6 +462,7 @@ public:
     * @return true if type matched
     */
    bool isType (OBJ_TYPE t) const;
+   bool isLink () const;
    /**
     * Sets type of the object to t
     * @param t
@@ -468,7 +507,7 @@ public:
     */
    string stringify (
       bool json = false, bool GetQueryStr = false,
-      FFJSONPrettyPrintPObj* pObj = NULL
+      FFJSONPrettyPrintPObj* pObj = NULL, uint lnLvl = 0
    ) const;
    
    #define GetQueryString(...) stringify(false,true,NULL);
@@ -484,7 +523,7 @@ public:
    string prettyString (
       bool json = false, bool printComments = false,
       unsigned int indent = 0, FFJSONPrettyPrintPObj* pObj = NULL,
-      bool printFilePath = false
+      bool printFilePath = false, bool save = false
    ) const;
    /**
     * Generates a query string which can be used to query a FFJSON tree. Query
@@ -510,23 +549,29 @@ public:
    FFJSON* answerString (FFJSON& queryObject);
    
    FFJSON* answerObject (
-      FFJSON* queryObject, FFJSONPObj* pObj = NULL,
-      FerryTimeStamp lastUpdateTime = FerryTimeStamp()
+      FFJSON* queryObject, FFJSONPObj* pObj = nullptr,
+      FerryTimeStamp lastUpdateTime = FerryTimeStamp(), FFJSON* ao = nullptr
    );
    void erase (string name);
    void erase (int index);
    void erase (FFJSON* value);
-   int save ();
+   uint erase (uint start, uint end);
+   int save (
+      bool json = false, bool printComments = true, unsigned int indent=0,
+      FFJSONPrettyPrintPObj* pObj=NULL, bool printFilePath=true,
+      bool save=true
+   ) const;
    Iterator begin ();
    Iterator end();
-   Iterator find(string key);
+   Iterator find(const string& key);
    void headTheHeader(FFJSONPrettyPrintPObj& lfpo);
    void SelfTest();
-   FFJSON& addLink (FFJSON* obj, string label);
-   
+   FFJSON& addLink (const FFJSON& obj, string label);
+   FFJSON& addLink (const string&& objPath, const string&& linkPath);
    FFJSON& operator [] (const char* prop);
    FFJSON& operator [] (const string& prop);
    FFJSON& operator [] (const int index);
+   FFJSON& operator [] (void);
    
    /**
     * returns null FFJSON object if invalid pointer. Deletes the object on
@@ -544,6 +589,7 @@ public:
       return *this;
    }
    FFJSON& operator = (const char* s);
+   FFJSON& operator = (Blob_ b);
    FFJSON& operator = (const string& s);
    FFJSON& operator = (const int& i);
    FFJSON& operator = (const unsigned int& i);
@@ -554,6 +600,8 @@ public:
    FFJSON& operator = (const bool& b);
    FFJSON& operator = (const FFJSON& f);
    FFJSON& operator = (FFJSON* f);
+
+   FFJSON& operator * ();
    
    template<typename T>
    operator T& () {
@@ -572,7 +620,7 @@ public:
    operator bool ();
    operator int ();
    operator unsigned int ();
-      
+   operator long ();
 private:
    uint32_t       flags = 0;
    FeaturedMember m_uFM;
@@ -586,7 +634,8 @@ private:
    static bool inline isTerminatingChar (char c);
    static bool inline isInitializingChar (char c);
    static std::map<FFJSON*, set<FFJSONIterator> > sm_mUpdateObjs;
-   FFJSON* returnNameIfDeclared (vector<string>& prop, FFJSONPObj* fpo) const;
+   FFJSON* returnNameIfDeclared (vector<string>& prop,
+                                 FFJSONPObj* fpo = nullptr) const;
    FFJSON* markTheNameIfExtended (FFJSONPrettyPrintPObj* fpo);
    bool inherit (FFJSON& obj, FFJSONPObj* pFPObj);
    void ReadMultiLinesInContainers (
@@ -598,7 +647,9 @@ private:
       int indent, vector<int>& vClWidths) const;
    LinkNRef GetLinkString(FFJSONPObj* pObj);
 };
-
+static FFJSON nullFFJSON;
 ostream& operator << (ostream& out, const FFJSON& f);
+
+bool operator < (const FFJSON& lhs, const FFJSON& rhs);
 
 #endif
