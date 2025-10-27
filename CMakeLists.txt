@@ -62,14 +62,18 @@ else(NOT LINKAGE)
    string(TOUPPER "${LINKAGE}" LINKAGE)
 endif()
 
-set (CMAKE_CXX_STANDARD 23)
 set (CMAKE_CXX_STANDARD_REQUIRED ON)
 set (GCC_COVERAGE_LINK_FLAGS "-fPIC")
 if (NOT macOS)
+   set (CMAKE_CXX_STANDARD 23)
    set (GCC_COVERAGE_LINK_FLAGS 
       "${GCC_COVERAGE_LINK_FLAGS} -Wl,-unresolved-symbols=ignore-in-shared-libs"
    )
 endif ()
+if (macOS)
+   set (GCC_COVERAGE_COMPILE_FLAGS "-std=c++23 -stdlib=libc++ ${GCC_COVERAGE_COMPILE_FLAGS}")
+endif()   
+
 if (DEFINED _DEBUG)
    set (GCC_COVERAGE_COMPILE_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS} -g")
    set (GCC_COVERAGE_LINK_FLAGS "${GCC_COVERAGE_LINK_FLAGS} -g")
@@ -91,6 +95,7 @@ include_directories(${PROJECT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
 include_directories (
    ".."
    "../logger"
+   "../ferrybase"
 )
 link_directories("${CMAKE_INSTALL_FULL_LIBDIR}")
 if(CMAKE_CONFIGURATION_TYPES)
@@ -136,9 +141,9 @@ if (BUILD_TESTING)
    #set (GCC_COVERAGE_LINK_FLAGS "-lFFJSON -lbase -llogger")
    #include_directories (${CMAKE_CURRENT_SOURCE_DIR} "/usr/local/include/ferryfair")
    #link_directories (${PROJECT_BINARY_DIR})
-   #set (CMAKE_CXX_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS}")
-   #set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
-
+   set (CMAKE_CXX_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS}")
+   set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
+   message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
    add_executable(TestFFJSON
       tests/TestFFJSON.cpp
       sample.ffjson
@@ -151,6 +156,10 @@ if (BUILD_TESTING)
       example.json
    )
    target_link_libraries(TestFFJSON FFJSON logger ferrybase)
+   if (${LINKAGE} MATCHES "DYNAMIC")
+      target_link_libraries(TestFFJSON xml2 pthread ssl crypto z rt
+        icuuc icudata icui18n jpeg)
+   endif ()
    target_include_directories(TestFFJSON PUBLIC
       ${CMAKE_CURRENT_SOURCE_DIR}
       ${CMAKE_INSTALL_FULL_INCLUDEDIR}/${Umbrella}

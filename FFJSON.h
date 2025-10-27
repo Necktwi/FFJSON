@@ -12,6 +12,7 @@
 #include "config.h"
 #include <logger.h>
 #include <ferrybase/FerryTimeStamp.h>
+#include <ferrybase/mystdlib.h>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -73,10 +74,12 @@ public:
    
    enum E_FLAGS : uint32_t {
       ENONE                = 0,
-      B64ENCODE            = 1 << 16,
+
+      B64ENCODE            = 1 << 16, //ObjectsNArrayNStr
       B64ENCODE_CHILDREN   = 1 << 17,
       B64ENCODE_STOP       = 1 << 18,
-      COMMENT              = 1 << 19,
+
+      COMMENT              = 1 << 19, //any
       HAS_COMMENT          = 1 << 20,
       
       EXTENDED             = 1 << 21, //ARRAY N OBJECT //FM
@@ -89,7 +92,8 @@ public:
       HAS_CHILDREN         = 1 << 23, //ARRAY N OBJECT //FM
       STRING_INIT          = 1 << 23, //STRING //FM
       
-      FILE                 = 1 << 24 //FILE //FM
+      FILE                 = 1 << 24, //FILE //FM Any
+      CASTFILE             = 1 << 25
    };
    
    enum COPY_FLAGS : uint32_t {
@@ -292,7 +296,7 @@ public:
       FFJSON* value = NULL;
       FFJSONPObj* pObj = NULL;
       vector<map<string, FFJSON*>::iterator>* m_pvpsMapSequence;
-      SymlinkTrail* s = nullptr;
+      vector<SymlinkTrail> symTrVec;
    };
    
    struct FFJSONPrettyPrintPObj : FFJSONPObj {
@@ -428,7 +432,7 @@ public:
    void freeObj(bool bAssignment=false);
    
    static const                  FeaturedMemType m_FM_LAST = FM_PARENT;
-   static const char             OBJ_STR[10][15];
+   static const char             OBJ_STR[15][15];
    static inline std::map<std::string, uint8_t> STR_OBJ = {
       {"", UNDEFINED},
       {"UNDEFINED", UNDEFINED},
@@ -474,7 +478,7 @@ public:
    void setQType (QUERY_TYPE t);
    QUERY_TYPE getQType () const;
    bool isEFlagSet (E_FLAGS t) const;
-   void setEFlag (E_FLAGS t);
+   void setEFlag (E_FLAGS t) const;
    E_FLAGS getEFlags () const;
    void clearEFlag (E_FLAGS t);
    void setFMCount (uint32_t iFMCount);
@@ -505,7 +509,7 @@ public:
     * Converts FFJSON object into FFJSON string.
     * @return FFJSON string.
     */
-   string stringify (
+   fstr stringify (
       bool json = false, bool GetQueryStr = false,
       FFJSONPrettyPrintPObj* pObj = NULL, uint lnLvl = 0
    ) const;
@@ -522,7 +526,7 @@ public:
     */
    string prettyString (
       bool json = false, bool printComments = false,
-      unsigned int indent = 0, FFJSONPrettyPrintPObj* pObj = NULL,
+      int indent = 0, FFJSONPrettyPrintPObj* pObj = NULL,
       bool printFilePath = false, bool save = false
    ) const;
    /**
@@ -622,8 +626,8 @@ public:
    operator unsigned int ();
    operator long ();
 private:
-   uint32_t       flags = 0;
-   FeaturedMember m_uFM;
+   mutable uint32_t flags = 0;
+   FeaturedMember   m_uFM;
    void copy (
       const FFJSON& orig, COPY_FLAGS cf = COPY_NONE,
       FFJSONPObj* pObj = NULL

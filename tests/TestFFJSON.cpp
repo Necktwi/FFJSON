@@ -398,18 +398,19 @@ void test12 () {
    cout << "===================================================" << endl;
    cout << "					update query					" << endl;
    cout << "===================================================" << endl;
-   FFJSON f("file://UpdateTest.json");
+   FFJSON f("{necktwi:{things:[{id:0}]}}");
    int j = 10;
    //while (j) {
       cout << "Creating new answer object: " << endl;
       FFJSON tf("{necktwi:{things:[{name:\"batman\"}]}}");
       FFJSON tf2("{necktwi:{things:[{name:?}]}}");
       static FerryTimeStamp ft;
-      FFJSON* ff = f.answerObject(&tf,NULL,ft);
+      FFJSON ao(f);
+      FFJSON* ff = f.answerObject(&tf,NULL,ft, &ao);
       //ft.Update();
       if(!ff)return;
-      cout << *ff << endl;
-      delete ff;
+      cout << "res: " << *ff << endl;
+      //delete ff;
       ff = f.answerObject(&tf2,NULL,ft);
       cout << *ff << endl;
       //f["newState"] = "RECORD";
@@ -423,22 +424,23 @@ void test13 () {
    cout << "===================================================" << endl;
    FFJSON fa(FFJSON::ARRAY);
    fa[0]=1;
-   FFJSON f("file://saveFileSample.ffjson");
-   cout << f.prettyString() << endl;
+   FFJSON f("file://saveFileSample.ffjson|OBJECT");
    f["test"]="OK";
-      //f["obj4"]["nestedFile"]["test"]="OK";
-   cout << f << endl;
-   FFJSON pvh; pvh = &f["vh"]["obj6"];
+   //f["obj4"]["nestedFile"]["test"]="OK";
+   FFJSON pvh;
+   pvh = &f["vh"]["obj6"];
    pvh["users"]["test"]="OK";
+   f["txoTest"]["test"]="OK";
+   f["txoTest"].clearEFlag(FFJSON::FILE);
    cout << f << endl;
    f.save();
-   FFJSON ff("file://saveFileSample.ffjson");
-   FFJSON& ln = ff["vh"]["obj5"]["things"][].
-      addLink(ff["vh"]["obj5"], "users.gowtham.things.0");
-   if (!ln)
-      delete &ln;
-   cout << ff << endl;
-   ff.save();
+   // FFJSON ff("file://saveFileSample.ffjson");
+   // FFJSON& ln = ff["vh"]["obj5"]["things"][].
+   //    addLink(ff["vh"]["obj5"], "users.gowtham.things.0");
+   // if (!ln)
+   //    delete &ln;
+   // cout << ff << endl;
+   // ff.save();
 }
 
 void test14 () {
@@ -642,14 +644,14 @@ int main (int argc, char** argv) {
    ftsEnd.Update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test12 " << endl;
-
+*/
    cout << "%TEST_STARTED% test13\n" << endl;
    ftsStart.Update();
    test13();
    ftsEnd.Update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test13 " << endl;
-
+/*
    cout << "%TEST_STARTED% test15\n" << endl;
    ftsStart.Update();
    test15();
@@ -698,14 +700,14 @@ int main (int argc, char** argv) {
    ftsEnd.Update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test21\n" << endl;
-*/   
+   
    cout << "%TEST_STARTED% test22" << endl;
    ftsStart.Update();
    test22();
    ftsEnd.Update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test22" << endl;
-
+*/
    ftsSuiteEnd.Update();
    ftsDiff = ftsSuiteEnd-ftsSuiteStart;
    cout << "%SUITE_FINISHED% time=" << ftsDiff << endl;

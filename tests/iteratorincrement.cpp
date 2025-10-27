@@ -16,14 +16,15 @@ struct MyStruct{
         if (m_iSize == sizeof(T)) {
             return *reinterpret_cast<T*> (m_pV);
         }
-        return *reinterpret_cast<T*> (NULL);
+        //return *reinterpret_cast<T*> (nullptr);
+        return *reinterpret_cast<T*> (m_pV);
     }
     MyStruct(void* pV,int iSize){m_pV=pV;m_iSize=iSize;}
-    void* m_pV=NULL;
+    void* m_pV=nullptr;
     int m_iSize=0;
 };
 
-int main(int argc, char** argv){
+int main (int argc, char** argv) {
     map<string, int> mStrInt;
     vector<map<string, int>::iterator > vStrIntIt;
     mStrInt["gowtham"]=100;
