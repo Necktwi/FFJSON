@@ -509,7 +509,7 @@ public:
     * Converts FFJSON object into FFJSON string.
     * @return FFJSON string.
     */
-   fstr stringify (
+   string stringify (
       bool json = false, bool GetQueryStr = false,
       FFJSONPrettyPrintPObj* pObj = NULL, uint lnLvl = 0
    ) const;

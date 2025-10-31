@@ -407,7 +407,7 @@ void test12 () {
       static FerryTimeStamp ft;
       FFJSON ao(f);
       FFJSON* ff = f.answerObject(&tf,NULL,ft, &ao);
-      //ft.Update();
+      //ft.update();
       if(!ff)return;
       cout << "res: " << *ff << endl;
       //delete ff;
@@ -557,158 +557,158 @@ int main (int argc, char** argv) {
    FerryTimeStamp ftsDiff;
    FerryTimeStamp ftsSuiteStart;
    FerryTimeStamp ftsSuiteEnd;
-   ftsSuiteStart.Update();
+   ftsSuiteStart.update();
 
 /*
    cout << "%TEST_STARTED% test1 (TestFFJSON)" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test1();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff <<
       " test1 (TestFFJSON)" << endl;
 
    cout << "%TEST_STARTED% test2 (TestFFJSON)\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test2();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test2 (TestFFJSON)" << endl;
    
    cout << "%TEST_STARTED% test3 (TestFFJSON)\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test3();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test3 " << endl;
 
    cout << "%TEST_STARTED% test4 (TestFFJSON)\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test4();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test4 " << endl;
 
    cout << "%TEST_STARTED% test5 (TestFFJSON)\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test5();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test5 " << endl;
    
    cout << "%TEST_STARTED% test6 (TestFFJSON)\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test6();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test6 " << endl;
    
    cout << "%TEST_STARTED% test7 (TestFFJSON)\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test7();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test7 " << endl;
    
    cout << "%TEST_STARTED% test8 (TestFFJSON)\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test8();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test8 " << endl;
    
    cout << "%TEST_STARTED% test9\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test9();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test9 " << endl;
    
    cout << "%TEST_STARTED% test10\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test10();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test10 " << endl;
 
    cout << "%TEST_STARTED% test11\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test11();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd-ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test11 " << endl;
 
    cout << "%TEST_STARTED% test12\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test12();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test12 " << endl;
 */
    cout << "%TEST_STARTED% test13\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test13();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test13 " << endl;
 /*
    cout << "%TEST_STARTED% test15\n" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test15();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test15 " << endl;
 
    cout << "%TEST_STARTED% test16" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test16();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test16\n" << endl;
 
    cout << "%TEST_STARTED% test17" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test17();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test17\n" << endl;
 
    cout << "%TEST_STARTED% test18" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test18();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test18\n" << endl;
 
    cout << "%TEST_STARTED% test19" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test19();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test19\n" << endl;
 
    cout << "%TEST_STARTED% test20" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test20();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test20\n" << endl;
   
    cout << "%TEST_STARTED% test21" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test21();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test21\n" << endl;
    
    cout << "%TEST_STARTED% test22" << endl;
-   ftsStart.Update();
+   ftsStart.update();
    test22();
-   ftsEnd.Update();
+   ftsEnd.update();
    ftsDiff = ftsEnd - ftsStart;
    cout << "%TEST_FINISHED% time=" << ftsDiff << " test22" << endl;
 */
-   ftsSuiteEnd.Update();
+   ftsSuiteEnd.update();
    ftsDiff = ftsSuiteEnd-ftsSuiteStart;
    cout << "%SUITE_FINISHED% time=" << ftsDiff << endl;
 

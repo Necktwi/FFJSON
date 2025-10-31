@@ -1100,7 +1100,7 @@ void FFJSON::init (
          case '}':
          case ']': {
             // NULL Objects or links caught here eg. "[]", ",,", ",]", "name:,}"
-            splitstring subffj(ffjson.c_str() + *ci, i - *ci);
+            string subffj(ffjson.c_str() + *ci, i - *ci);
             trimWhites(subffj);
             if (subffj.length() > 0) {
                vector<string>* prop = new vector<string>();
@@ -2407,9 +2407,9 @@ FFJSON& FFJSON::operator * () {
  * @param encode_to_base64 if true then the binary data is base64 encoded
  * @return json string of this FFJSON object
  */
-fstr FFJSON::stringify (bool json, bool bGetQueryStr,
+string FFJSON::stringify (bool json, bool bGetQueryStr,
                           FFJSONPrettyPrintPObj * pObj, uint lnLvl) const {
-   fstr ffs;
+   string ffs;
    if (bGetQueryStr) {
       if (isQType(QUERY)) {
          return "?";
