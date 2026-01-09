@@ -3,6 +3,7 @@
       "underconstruction": {"rootdir":"rd_string"},
       "127.0.0.2": underconstruction
    },
+   u: users,
    users: {
       gowtham: {
          things: [
