@@ -34,6 +34,7 @@ class FFJSON;
 struct FFPtrCmp {
    bool operator() (const FFJSON* a, const FFJSON* b) const;
 };
+typedef FFJSON Txo;
 typedef set<FFJSON*, FFPtrCmp> ffset;
 typedef map<string, FFJSON*> ffmap;
 typedef vector<FFJSON*> ffvec;
@@ -386,6 +387,13 @@ public:
       FFValue() : string {NULL}
       {}
    } val;
+
+   /**
+    * It holds the size of the FFJSON object. array size, object properties,
+    * string length. Do not change it!! Its made public only for reading
+    * convenience.
+    */
+   unsigned int size = 0;
    
    /**
     * creates an UNRECOGNIZED FFJSON object. Any FFJSON object can be
@@ -452,13 +460,6 @@ public:
    FeaturedMember getFeaturedMember (FeaturedMemType fMT) const;
    void destroyAllFeaturedMembers (bool bExemptQueries = false);
    void deleteFeaturedMember (FeaturedMemType fmt);
-   
-   /**
-    * It holds the size of the FFJSON object. array size, object properties,
-    * string length. Do not change it!! Its made public only for reading
-    * convenience.
-    */
-   unsigned int size = 0;
    
    /**
     * If the object is of type @param t, it returns true else false.
