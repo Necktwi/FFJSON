@@ -43,6 +43,7 @@ configure_file(
 # macOS specific code
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    set(macOS ON)
+   message("FFJSON: macOS ON")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Linux specific code

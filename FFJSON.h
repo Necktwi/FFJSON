@@ -511,8 +511,12 @@ public:
     * @return FFJSON string.
     */
    string stringify (
-      bool json = false, bool GetQueryStr = false,
-      FFJSONPrettyPrintPObj* pObj = NULL, uint lnLvl = 0
+      bool json = false, bool bGetQueryStr = false,
+      FFJSONPObj* pObj = NULL, uint lnLvl = 0
+   ) const;
+   void stringify (
+      string& str, bool json= false, bool bGetQueryStr= false,
+      FFJSONPObj* pObj= NULL, uint lnLvl= 0
    ) const;
    
    #define GetQueryString(...) stringify(false,true,NULL);
@@ -548,7 +552,7 @@ public:
     * can be the answer string for
     * {animals:{horses:{count:?,colors:?}}}
     * query string.
-    * @param queryStirng
+    * @param queryString
     * @return Answer string
     */
    FFJSON* answerString (FFJSON& queryObject);
