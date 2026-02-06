@@ -34,6 +34,7 @@ class FFJSON;
 struct FFPtrCmp {
    bool operator() (const FFJSON* a, const FFJSON* b) const;
 };
+typedef FFJSON Txo;
 typedef set<FFJSON*, FFPtrCmp> ffset;
 typedef map<string, FFJSON*> ffmap;
 typedef vector<FFJSON*> ffvec;
