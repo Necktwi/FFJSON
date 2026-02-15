@@ -58,6 +58,7 @@ public:
       BIG_OBJECT,
       LINK,
       DLINK, //Direct link
+      VPTR,
       NUL
    };
    
@@ -101,6 +102,7 @@ public:
       COPY_NONE      = 0,
       COPY_QUERIES   = 1 << 0,
       COPY_EFLAGS    = 1 << 1,
+		COPY_SHALLOW   = 1 << 2,
       COPY_ALL       = 0xffffffff
    };
    
@@ -387,6 +389,13 @@ public:
       FFValue() : string {NULL}
       {}
    } val;
+
+   /**
+    * It holds the size of the FFJSON object. array size, object properties,
+    * string length. Do not change it!! Its made public only for reading
+    * convenience.
+    */
+   unsigned int size = 0;
    
    /**
     * creates an UNRECOGNIZED FFJSON object. Any FFJSON object can be
@@ -452,14 +461,8 @@ public:
    void insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT);
    FeaturedMember getFeaturedMember (FeaturedMemType fMT) const;
    void destroyAllFeaturedMembers (bool bExemptQueries = false);
+   void nullFeaturedMember (FeaturedMemType fmt);
    void deleteFeaturedMember (FeaturedMemType fmt);
-   
-   /**
-    * It holds the size of the FFJSON object. array size, object properties,
-    * string length. Do not change it!! Its made public only for reading
-    * convenience.
-    */
-   unsigned int size = 0;
    
    /**
     * If the object is of type @param t, it returns true else false.
@@ -511,8 +514,12 @@ public:
     * @return FFJSON string.
     */
    string stringify (
-      bool json = false, bool GetQueryStr = false,
-      FFJSONPrettyPrintPObj* pObj = NULL, uint lnLvl = 0
+      bool json= false, bool bGetQueryStr= false,
+      FFJSONPObj* pObj= NULL, uint lnLvl= 0
+   ) const;
+   void stringify (
+      string& str, bool json= false, bool bGetQueryStr= false,
+      FFJSONPObj* pObj= NULL, uint lnLvl= 0
    ) const;
    
    #define GetQueryString(...) stringify(false,true,NULL);
@@ -548,7 +555,7 @@ public:
     * can be the answer string for
     * {animals:{horses:{count:?,colors:?}}}
     * query string.
-    * @param queryStirng
+    * @param queryString
     * @return Answer string
     */
    FFJSON* answerString (FFJSON& queryObject);
@@ -578,6 +585,13 @@ public:
    FFJSON& operator [] (const int index);
    FFJSON& operator [] (void);
    
+   template <typename T>
+   FFJSON& operator= (T* t) {
+      freeObj ();
+      val.vptr = (uint8_t*)t;
+      setType(VPTR);
+      return *this;
+   }
    /**
     * returns null FFJSON object if invalid pointer. Deletes the object on
     * deleting this FFJSON object if its the last reference.
@@ -585,7 +599,7 @@ public:
     * @return FFJSON object of BINARY type
     */
    template <typename T>
-   FFJSON& operator = (T const& t) {
+   FFJSON& operator= (const T& t) {
       freeObj ();
       ffl_debug (FFJ_MAIN, "size:%d", sizeof(T));
       size = sizeof (T);
@@ -611,8 +625,7 @@ public:
    template<typename T>
    operator T& () {
       ffl_debug (FFJ_MAIN, "size:%d",sizeof(T));
-      cout << sizeof(T) << endl;
-      if (isType(BINARY) && size == sizeof(T)) {
+      if ((isType(BINARY) && size == sizeof(T)) || isType(VPTR)) {
          return *reinterpret_cast<T*> (val.vptr);
       } else {
          ffl_err (FFJ_MAIN, "Illegal cast! Type miss match");
@@ -626,13 +639,13 @@ public:
    operator int ();
    operator unsigned int ();
    operator long ();
-private:
-   mutable uint32_t flags = 0;
-   FeaturedMember   m_uFM;
    void copy (
       const FFJSON& orig, COPY_FLAGS cf = COPY_NONE,
       FFJSONPObj* pObj = NULL
    );
+private:
+   mutable uint32_t flags = 0;
+   FeaturedMember   m_uFM;
    static int getIndent (const char* ffjson, int* ci, int indent);
    static void strObjMapInit ();
    static bool inline isWhiteSpace (char c);

@@ -43,6 +43,7 @@ configure_file(
 # macOS specific code
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    set(macOS ON)
+   message("FFJSON: macOS ON")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Linux specific code
@@ -75,8 +76,8 @@ if (macOS)
 endif()   
 
 if (DEFINED _DEBUG)
-   set (GCC_COVERAGE_COMPILE_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS} -g")
-   set (GCC_COVERAGE_LINK_FLAGS "${GCC_COVERAGE_LINK_FLAGS} -g")
+#   set (GCC_COVERAGE_COMPILE_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS} -fsanitize=address -g -O0 -fno-omit-frame-pointer")
+   set (GCC_COVERAGE_COMPILE_FLAGS "${GCC_COVERAGE_COMPILE_FLAGS} -g -O0")
 endif ()
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS} -Wno-changes-meaning")
 set (
