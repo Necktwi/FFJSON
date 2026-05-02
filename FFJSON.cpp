@@ -886,7 +886,7 @@ void FFJSON::init (
                ++i;
             }
             size = atoi(ffjson.c_str()+typeNail);
-            val.vptr = new uint8_t[size];
+            val.vptr = (uint8_t*)malloc(size*sizeof(uint8_t));
             ++i;
             memcpy(val.vptr, ffjson.c_str() + i, size);
             setType(FFJSON::BINARY);
@@ -945,9 +945,10 @@ void FFJSON::init (
                   precision= size;
                string num = ffjson.substr(numNail, i - numNail);
                if (num.length() == 20) {
-                  val.m_pFerryTimeStamp = new FerryTimeStamp(num);
+                  size= sizeof(FerryTimeStamp);
+                  val.m_pFerryTimeStamp= (FerryTimeStamp*)malloc(size);
+						*val.m_pFerryTimeStamp= FerryTimeStamp(num);
                   setType(OBJ_TYPE::BINARY);
-                  size=sizeof(FerryTimeStamp);
                   goto backyard;
                }
                size_t s = 0;
@@ -1365,7 +1366,7 @@ void FFJSON::insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT) {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isType(STRING)) {
       if (fMT == FM_WIDTH) {
@@ -1391,7 +1392,7 @@ void FFJSON::insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT) {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isType(OBJECT)) {
       if (fMT == FM_MAP_SEQUENCE) {
@@ -1417,7 +1418,7 @@ void FFJSON::insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT) {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (this->isEFlagSet(EXT_VIA_PARENT) && !isType(STRING)) {
       if (fMT == FM_TABHEAD) {
@@ -1443,7 +1444,7 @@ void FFJSON::insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT) {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (this->isType(LINK)) {
       if (fMT == FM_LINK) {
@@ -1469,7 +1470,7 @@ void FFJSON::insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT) {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (this->isEFlagSet(EXTENDED) && (isType(OBJECT) || isType(ARRAY))) {
       if (fMT == FM_PARENT) {
@@ -1495,7 +1496,7 @@ void FFJSON::insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT) {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (this->isEFlagSet(HAS_CHILDREN) && (isType(OBJECT) || isType(ARRAY))) {
       if (fMT == FM_CHILDREN) {
@@ -1521,7 +1522,7 @@ void FFJSON::insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT) {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isQType(UPDATE)) {
       if (fMT == FM_UPDATE_TIMESTAMP) {
@@ -1547,7 +1548,7 @@ void FFJSON::insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT) {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isEFlagSet((E_FLAGS)(FILE|CASTFILE))) {
       if (fMT == FM_FILE) {
@@ -1573,7 +1574,7 @@ void FFJSON::insertFeaturedMember (FeaturedMember& fms, FeaturedMemType fMT) {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
 }
 
@@ -1597,7 +1598,7 @@ FFJSON::FeaturedMember FFJSON::getFeaturedMember (FeaturedMemType fMT) const {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isType(STRING)) {
       if (fMT == FM_WIDTH) {
@@ -1613,23 +1614,23 @@ FFJSON::FeaturedMember FFJSON::getFeaturedMember (FeaturedMemType fMT) const {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
-   if (isType(OBJECT)) {
-      if (fMT == FM_MAP_SEQUENCE && size<MAX_ORDERED_MEMBERS) {
+   if (isType(OBJECT) && size<MAX_ORDERED_MEMBERS) {
+      if (fMT == FM_MAP_SEQUENCE) {
          if (iFMCount - iFMTraversed == 1) {
             return *pFMS;
          } else {
             return pFMS->m_pFMH->m_uFM;
          }
       } else {
-         if (iFMCount - iFMTraversed == 1) {
-            return decoyFM;
-         } else {
-            pFMS = &pFMS->m_pFMH->m_pFMH;
-         }
+			if (iFMCount - iFMTraversed == 1) {
+				return decoyFM;
+			} else {
+				pFMS = &pFMS->m_pFMH->m_pFMH;
+			}
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isEFlagSet(EXT_VIA_PARENT) && !isType(STRING)) {
       if (fMT == FM_TABHEAD) {
@@ -1645,7 +1646,7 @@ FFJSON::FeaturedMember FFJSON::getFeaturedMember (FeaturedMemType fMT) const {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isType(LINK)) {
       if (fMT == FM_LINK) {
@@ -1661,7 +1662,7 @@ FFJSON::FeaturedMember FFJSON::getFeaturedMember (FeaturedMemType fMT) const {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isEFlagSet(EXTENDED) && (isType(OBJECT) || isType(ARRAY))) {
       if (fMT == FM_PARENT) {
@@ -1677,7 +1678,7 @@ FFJSON::FeaturedMember FFJSON::getFeaturedMember (FeaturedMemType fMT) const {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (this->isEFlagSet(HAS_CHILDREN) && (isType(OBJECT) || isType(ARRAY))) {
       if (fMT == FM_CHILDREN) {
@@ -1693,7 +1694,7 @@ FFJSON::FeaturedMember FFJSON::getFeaturedMember (FeaturedMemType fMT) const {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isQType(UPDATE)) {
       if (fMT == FM_UPDATE_TIMESTAMP) {
@@ -1709,7 +1710,7 @@ FFJSON::FeaturedMember FFJSON::getFeaturedMember (FeaturedMemType fMT) const {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isEFlagSet((E_FLAGS)(FILE|CASTFILE))) {
       if (fMT == FM_FILE) {
@@ -1725,7 +1726,7 @@ FFJSON::FeaturedMember FFJSON::getFeaturedMember (FeaturedMemType fMT) const {
             pFMS = &pFMS->m_pFMH->m_pFMH;
          }
       }
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    return decoyFM;
 }
@@ -1892,7 +1893,7 @@ void FFJSON::deleteFeaturedMember (FeaturedMemType fmt) {
          clearEFlag(STRING_INIT);
       }
       pfmPre = pFMS;
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (this->isType(STRING)) {
       if (fmt == FM_WIDTH) {
@@ -1909,7 +1910,7 @@ void FFJSON::deleteFeaturedMember (FeaturedMemType fmt) {
          }
       }
       pfmPre = pFMS;
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isType(OBJECT) && fmt==FM_MAP_SEQUENCE) {
       if (iFMCount == 1) {
@@ -1944,7 +1945,7 @@ void FFJSON::deleteFeaturedMember (FeaturedMemType fmt) {
          }
       }
       pfmPre = pFMS;
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (this->isType(LINK)) {
       if (fmt == FM_LINK) {
@@ -1962,7 +1963,7 @@ void FFJSON::deleteFeaturedMember (FeaturedMemType fmt) {
          }
       }
       pfmPre = pFMS;
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (this->isEFlagSet(EXTENDED)) {
       if (fmt == FM_PARENT) {
@@ -1980,7 +1981,7 @@ void FFJSON::deleteFeaturedMember (FeaturedMemType fmt) {
          }
       }
       pfmPre = pFMS;
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (this->isEFlagSet(HAS_CHILDREN) && (isType(OBJECT) || isType(ARRAY))) {
       if (fmt == FM_CHILDREN) {
@@ -2000,7 +2001,7 @@ void FFJSON::deleteFeaturedMember (FeaturedMemType fmt) {
          }
       }
       pfmPre = pFMS;
-      iFMTraversed++;
+      ++iFMTraversed;
    }
    if (isEFlagSet((E_FLAGS)(FILE|CASTFILE))) {
       if (fmt == (FeaturedMemType)FILE) {
@@ -2017,7 +2018,7 @@ void FFJSON::deleteFeaturedMember (FeaturedMemType fmt) {
          }
       }
       pfmPre = pFMS;
-      iFMTraversed++;
+      ++iFMTraversed;
    }
 }
 
@@ -2215,7 +2216,7 @@ void FFJSON::freeObj (bool bAssignment) {
          break;
       }
       case BINARY: {
-         delete[] val.vptr;
+			free(val.vptr);
          break;
       }
       case TIME: {
@@ -3160,7 +3161,7 @@ string FFJSON::prettyString (
                pObj, printFilePath, save);
       }
       case BINARY: {
-         ps += "(" + to_string (size) + ")";
+         ps += "(" + to_string(size) + ")";
          ps.append((const char*) val.vptr, size);
          break;
       }
@@ -3321,7 +3322,7 @@ FFJSON& FFJSON::operator = (Blob_ b) {
 
 FFJSON& FFJSON::operator = (const char* s) {
    if (isQType(UPDATE)) {
-      FeaturedMember fm=getFeaturedMember(FM_UPDATE_TIMESTAMP);
+      FeaturedMember fm= getFeaturedMember(FM_UPDATE_TIMESTAMP);
       fm.m_pTimeStamp->update();
    }
    FFJSON* parent = nullptr;
@@ -3434,9 +3435,20 @@ FFJSON& FFJSON::operator = (const int& i) {
       FeaturedMember fm=getFeaturedMember(FM_UPDATE_TIMESTAMP);
       fm.m_pTimeStamp->update();
    }
+   FFJSON* parent = nullptr;
+   if (isType(NEW_SET_MEMBER)) {
+      parent = val.fptr;
+   }
    freeObj(true);
    setType(NUMBER);
    val.number = i;
+	if (parent) {
+      if (parent->val.setPtr->insert(this).second)
+         ++parent->size;
+      else {
+         freeObj(true);
+      }
+   }
    return *this;
 }
 
@@ -3444,6 +3456,10 @@ FFJSON& FFJSON::operator = (const FFJSON& f) {
    if(isQType(UPDATE)){
       FeaturedMember fm=getFeaturedMember(FM_UPDATE_TIMESTAMP);
       fm.m_pTimeStamp->update();
+   }
+	FFJSON* parent = nullptr;
+	if (isType(NEW_SET_MEMBER)) {
+      parent = val.fptr;
    }
    if (f.isType(UNDEFINED)) {
       freeObj();

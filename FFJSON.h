@@ -603,7 +603,8 @@ public:
       freeObj ();
       ffl_debug (FFJ_MAIN, "size:%d", sizeof(T));
       size = sizeof (T);
-      val .vptr = (uint8_t*) new T (t);
+      val.vptr = (uint8_t*)malloc(size);
+		(T&)(*val.vptr)= t;
       setType (BINARY);
       return *this;
    }
