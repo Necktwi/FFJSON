@@ -2295,15 +2295,15 @@ FFJSON& FFJSON::operator [] (void) {
    } else if (isType(UNDEFINED)) {
      settype:
       setType(SET_TYPE);
-      val.setPtr=new ffset();
+      val.setPtr= new ffset();
    } else if (isType(OBJECT) && size==0) {
       freeObj();
       goto settype;
    }
-   FFJSON* obj = new FFJSON();
+   FFJSON* obj= new FFJSON();
    if (isType(SET_TYPE)) {
       obj->setType(NEW_SET_MEMBER);
-      obj->val.fptr=this;
+      obj->val.fptr= this;
    }
    return *obj;
 }
@@ -3314,7 +3314,8 @@ FFJSON& FFJSON::operator = (Blob_ b) {
       if (parent->val.setPtr->insert(this).second)
          ++parent->size;
       else {
-         freeObj(true);
+         delete this;
+			return nullFFJSON;
       }
    }
    return *this;
@@ -3419,7 +3420,8 @@ FFJSON& FFJSON::operator = (const char* s) {
       if (parent->val.setPtr->insert(this).second)
          ++parent->size;
       else {
-         freeObj(true);
+         delete this;
+			return nullFFJSON;
       }
    }
    return *this;
@@ -3446,7 +3448,8 @@ FFJSON& FFJSON::operator = (const int& i) {
       if (parent->val.setPtr->insert(this).second)
          ++parent->size;
       else {
-         freeObj(true);
+         delete this;
+			return nullFFJSON;
       }
    }
    return *this;
@@ -3505,7 +3508,8 @@ FFJSON& FFJSON::addLink (const FFJSON& PObj, string label) {
          if (parent->val.setPtr->insert(this).second)
             ++parent->size;
          else {
-            freeObj(true);
+				delete this;
+				return nullFFJSON;
          }
       }
    } else {
